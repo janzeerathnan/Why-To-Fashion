@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WTF - Why To Fashion | Reviews</title>
+
+    <script src="tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+    <!-- App Config (gitignored) -->
+    <script src="config.js"></script>
+    <!-- App JS -->
+    <script src="app.js"></script>
+</head>
+
+<body x-data="app('reviews')">
+
+    <!-- NAVBAR -->
+    <nav class="navbar px-6 md:px-12 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
+                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
+                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                </div>
+                <div>
+                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
+                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
+                        2026 · Vavuniya</div>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <template x-for="item in navItems" :key="item.id">
+                    <a @click="navigate(item.id)" class="nav-link cursor-pointer"
+                        :class="{ active: currentPage === item.id }" x-text="item.label"></a>
+                </template>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <a @click="navigate('admin')"
+                    class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
+                    title="Admin Login">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Admin
+                </a>
+                <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
+            </div>
+        </div>
+        <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+        </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" :class="{ open: mobileOpen }">
+        <div class="flex flex-col h-full justify-center items-center gap-10">
+            <template x-for="item in navItems" :key="item.id">
+                <a @click="navigate(item.id); mobileOpen=false"
+                    class="font-display text-5xl tracking-widest text-wtf-cream hover:text-wtf-lime transition-colors cursor-pointer"
+                    x-text="item.label"></a>
+            </template>
+        </div>
+    </div>
+
+    <!-- PAGE: REVIEWS -->
+    <div class="pt-24" x-transition:enter="page-enter">
+        <div class="max-w-6xl mx-auto px-6 md:px-12 py-12">
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+                <div>
+                    <div class="section-tag mb-3">Customer Voices</div>
+                    <h1 class="font-display text-6xl md:text-7xl tracking-widest text-wtf-cream">REVIEWS</h1>
+                </div>
+                <button @click="openReviewModal(null)" class="btn-primary self-start"><span>+ Write a
+                        Review</span></button>
+            </div>
+
+            <!-- Rating Overview -->
+            <div class="bg-wtf-card border border-wtf-border p-8 mb-12 rounded-lg" data-aos="fade-up">
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                    <div class="text-center">
+                        <div class="font-display text-8xl text-wtf-lime" x-text="avgRating || '—'"></div>
+                        <div class="flex justify-center gap-1 my-2">
+                            <template x-for="s in 5" :key="s">
+                                <span :class="s <= Math.round(avgRating) ? 'text-wtf-gold' : 'text-gray-300'"
+                                    class="text-2xl">★</span>
+                            </template>
+                        </div>
+                        <div class="text-wtf-muted font-heading tracking-widest text-sm"
+                            x-text="allReviews.length + ' reviews'"></div>
+                    </div>
+                    <div class="space-y-3">
+                        <template x-for="n in [5,4,3,2,1]" :key="n">
+                            <div class="flex items-center gap-3">
+                                <span class="text-wtf-muted font-heading text-sm w-4" x-text="n"></span>
+                                <span class="text-wtf-gold text-sm">★</span>
+                                <div class="rating-bar flex-1 bg-gray-200">
+                                    <div class="rating-fill"
+                                        :style="'width:' + (allReviews.filter(r=>r.rating===n).length / (allReviews.length||1) * 100) + '%'">
+                                    </div>
+                                </div>
+                                <span class="text-wtf-muted text-xs font-body w-6"
+                                    x-text="allReviews.filter(r=>r.rating===n).length"></span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reviews Grid -->
+            <div x-show="reviewsLoading" class="flex justify-center py-20">
+                <svg class="spinner w-8 h-8 text-wtf-lime" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </div>
+
+            <div x-show="!reviewsLoading" class="grid md:grid-cols-2 gap-6">
+                <template x-for="review in allReviews" :key="review.id">
+                    <div class="review-card p-6 rounded-lg" data-aos="fade-up">
+                        <div class="flex items-start justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center rounded-full">
+                                    <span class="font-display text-base text-white"
+                                        x-text="(review.name || review.email)[0].toUpperCase()"></span>
+                                </div>
+                                <div>
+                                    <div class="font-heading font-600 text-wtf-cream tracking-wide"
+                                        x-text="review.name || review.email.split('@')[0]"></div>
+                                    <div class="text-xs text-wtf-muted" x-text="review.product_name || 'WTF Product'">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="text-xs text-wtf-muted font-body"
+                                x-text="new Date(review.created_at).toLocaleDateString()"></div>
+                        </div>
+                        <div class="flex mb-3">
+                            <template x-for="s in 5" :key="s">
+                                <span :class="s <= review.rating ? 'text-wtf-gold' : 'text-gray-300'"
+                                    class="text-base">★</span>
+                            </template>
+                        </div>
+                        <p class="font-body text-wtf-muted leading-relaxed text-sm" x-text="review.review_text"></p>
+                    </div>
+                </template>
+            </div>
+
+            <div x-show="!reviewsLoading && allReviews.length === 0" class="text-center py-20">
+                <div class="text-5xl mb-4">✍️</div>
+                <p class="text-wtf-muted font-heading tracking-widest">No reviews yet. Be the first!</p>
+                <button @click="reviewModal = true" class="btn-primary mt-6"><span>Write First Review</span></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEW FORM MODAL -->
+    <div x-show="reviewModal" class="modal-bg" @click.self="reviewModal = false" style="display:none;">
+        <div class="modal-content max-w-lg" x-show="reviewModal">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-display text-3xl tracking-widest text-wtf-cream"
+                        x-text="existingReviewId ? 'UPDATE REVIEW' : 'WRITE REVIEW'"></h2>
+                    <button @click="reviewModal = false"
+                        class="text-wtf-muted hover:text-wtf-cream transition-colors text-2xl">&times;</button>
+                </div>
+                <!-- Existing review info banner -->
+                <div x-show="existingReviewId"
+                    class="mb-5 flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-700 text-sm font-body">
+                    <span class="text-lg leading-none">&#8505;&#65039;</span>
+                    <span>Your previous review is loaded below. Edit it and click <strong>Update Review</strong> to save
+                        your changes.</span>
+                </div>
+                <form @submit.prevent="submitReview()" class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label">Your Name *</label>
+                            <input type="text" x-model="reviewForm.name" class="form-input" placeholder="John Doe"
+                                required />
+                        </div>
+                        <div>
+                            <label class="form-label">Email *</label>
+                            <div class="relative">
+                                <input type="email" x-model="reviewForm.email" class="form-input pr-8"
+                                    placeholder="you@email.com" @blur="checkExistingReview()" required />
+                                <span x-show="checkingEmail"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-wtf-lime text-xs">&#8987;</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Star Rating -->
+                    <div>
+                        <label class="form-label">Rating *</label>
+                        <div class="flex gap-1 mt-1">
+                            <template x-for="s in 5" :key="s">
+                                <span class="star" :class="{ active: s <= reviewForm.rating }"
+                                    @click="reviewForm.rating = s">&#9733;</span>
+                            </template>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Your Review *</label>
+                        <textarea x-model="reviewForm.review_text" class="form-input" rows="4"
+                            placeholder="Tell us about your experience..." required style="resize:vertical;"></textarea>
+                    </div>
+                    <!-- Error / info message -->
+                    <div x-show="reviewError"
+                        :class="existingReviewId ? 'text-blue-600 bg-blue-50 border border-blue-200 rounded px-3 py-2' : 'text-red-400'"
+                        class="text-sm font-body" x-text="reviewError"></div>
+                    <button type="submit" class="btn-primary w-full" :disabled="submittingReview || checkingEmail">
+                        <span
+                            x-text="submittingReview ? 'Saving...' : (existingReviewId ? 'Update Review &#8594;' : 'Submit Review &#8594;')"></span>
+                    </button>
+                    <p x-show="!existingReviewId" class="text-xs text-wtf-muted text-center font-body">
+                        Tip: If you've reviewed before, enter the same email to edit your review.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-20 pb-8 px-6 md:px-12 bg-white mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-6 cursor-pointer" @click="navigate('home')">
+                        <div class="w-12 h-12 bg-wtf-green flex items-center justify-center">
+                            <span class="font-display text-sm text-white tracking-widest">WTF</span>
+                        </div>
+                        <div>
+                            <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WHY TO FASHION
+                            </div>
+                        </div>
+                    </div>
+                    <p class="font-body text-wtf-muted text-sm leading-relaxed mb-4">Bold menswear for the modern man.
+                        Born in Vavuniya, worn everywhere.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Navigation
+                    </h4>
+                    <ul class="space-y-3">
+                        <template x-for="item in navItems" :key="item.id">
+                            <li><a @click="navigate(item.id)"
+                                    class="text-wtf-muted text-sm font-body hover:text-wtf-lime transition-colors cursor-pointer"
+                                    x-text="item.label"></a></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Contact</h4>
+                    <ul class="space-y-3 text-sm font-body text-wtf-muted">
+                        <li>Mannar Road, Vavuniya</li>
+                        <li>Northern Province, Sri Lanka</li>
+                        <li class="text-wtf-cream font-bold">077 123 4567</li>
+                        <li>info@whytofashion.lk</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Newsletter
+                    </h4>
+                    <p class="text-wtf-muted text-sm font-body mb-4">Get exclusive drops & style tips.</p>
+                    <form @submit.prevent="subscribeNewsletter()" class="flex gap-2">
+                        <input type="email" x-model="newsletterEmail" class="form-input flex-1 text-xs"
+                            placeholder="your@email.com" required />
+                        <button type="submit" class="btn-primary text-xs px-4"><span>→</span></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-wtf-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-wtf-muted font-body">© 2026 Why To Fashion (WTF). All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Privacy</a>
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Terms</a>
+                    <a @click="navigate('admin')"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase cursor-pointer">Admin</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" x-text="toastMsg"></div>
+
+</body>
+
+</html>

@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WTF - Why To Fashion | Contact</title>
+
+    <script src="tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+    <!-- App Config (gitignored) -->
+    <script src="config.js"></script>
+    <!-- App JS -->
+    <script src="app.js"></script>
+</head>
+
+<body x-data="app('contact')">
+
+    <!-- NAVBAR -->
+    <nav class="navbar px-6 md:px-12 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
+                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
+                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                </div>
+                <div>
+                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
+                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
+                        2026 · Vavuniya</div>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <template x-for="item in navItems" :key="item.id">
+                    <a @click="navigate(item.id)" class="nav-link cursor-pointer"
+                        :class="{ active: currentPage === item.id }" x-text="item.label"></a>
+                </template>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <a @click="navigate('admin')"
+                    class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
+                    title="Admin Login">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Admin
+                </a>
+                <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
+            </div>
+        </div>
+        <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+        </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" :class="{ open: mobileOpen }">
+        <div class="flex flex-col h-full justify-center items-center gap-10">
+            <template x-for="item in navItems" :key="item.id">
+                <a @click="navigate(item.id); mobileOpen=false"
+                    class="font-display text-5xl tracking-widest text-wtf-cream hover:text-wtf-lime transition-colors cursor-pointer"
+                    x-text="item.label"></a>
+            </template>
+        </div>
+    </div>
+
+    <!-- PAGE: CONTACT -->
+    <div class="pt-24" x-transition:enter="page-enter">
+        <div class="max-w-6xl mx-auto px-6 md:px-12 py-12">
+            <div class="mb-12">
+                <div class="section-tag mb-3">Get In Touch</div>
+                <h1 class="font-display text-6xl md:text-7xl tracking-widest text-wtf-cream">CONTACT US</h1>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-16">
+                <!-- Contact Info -->
+                <div data-aos="fade-right">
+                    <h3 class="font-display text-3xl tracking-widest text-wtf-cream mb-8">REACH OUT</h3>
+                    <div class="space-y-6 mb-10">
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-wtf-green flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div
+                                    class="font-heading font-600 text-wtf-cream tracking-widest text-sm uppercase mb-1">
+                                    Address</div>
+                                <p class="text-wtf-muted font-body text-sm">Mannar Road, Vavuniya<br>Northern Province,
+                                    Sri Lanka</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-wtf-green flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div
+                                    class="font-heading font-600 text-wtf-cream tracking-widest text-sm uppercase mb-1">
+                                    Phone</div>
+                                <p class="text-wtf-muted font-body text-sm">077 123 4567</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-4">
+                            <div class="w-10 h-10 bg-wtf-green flex items-center justify-center flex-shrink-0">
+                                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div>
+                                <div
+                                    class="font-heading font-600 text-wtf-cream tracking-widest text-sm uppercase mb-1">
+                                    Hours</div>
+                                <p class="text-wtf-muted font-body text-sm">Mon–Sat: 9:00 AM – 8:00 PM<br>Sun: 10:00 AM
+                                    – 6:00 PM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Map placeholder -->
+                    <div
+                        class="w-full h-48 bg-wtf-dark border border-wtf-border flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 opacity-10"
+                            style="background-image: linear-gradient(#14532d 1px, transparent 1px), linear-gradient(90deg, #14532d 1px, transparent 1px); background-size: 30px 30px;">
+                        </div>
+                        <div class="text-center relative z-10">
+                            <div class="w-8 h-8 bg-wtf-green mx-auto flex items-center justify-center mb-2">
+                                <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                </svg>
+                            </div>
+                            <p class="text-xs text-wtf-muted font-heading tracking-widest uppercase">Mannar Road,
+                                Vavuniya</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div data-aos="fade-left" data-aos-delay="150" class="bg-white p-6 border border-wtf-border rounded-lg">
+                    <form @submit.prevent="submitContact()" class="space-y-6">
+                        <div>
+                            <label class="form-label">Your Name *</label>
+                            <input type="text" x-model="contactForm.name" class="form-input" placeholder="John Doe"
+                                required />
+                        </div>
+                        <div>
+                            <label class="form-label">Email Address *</label>
+                            <input type="email" x-model="contactForm.email" class="form-input"
+                                placeholder="you@example.com" required />
+                        </div>
+                        <div>
+                            <label class="form-label">Subject</label>
+                            <input type="text" x-model="contactForm.subject" class="form-input"
+                                placeholder="Product inquiry, order, etc." />
+                        </div>
+                        <div>
+                            <label class="form-label">Message *</label>
+                            <textarea x-model="contactForm.message" class="form-input" rows="5"
+                                placeholder="How can we help you?" required style="resize:vertical;"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary w-full" :disabled="contactSubmitting">
+                            <span x-text="contactSubmitting ? 'Sending...' : 'Send Message →'"></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-20 pb-8 px-6 md:px-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-6 cursor-pointer" @click="navigate('home')">
+                        <div class="w-12 h-12 bg-wtf-green flex items-center justify-center">
+                            <span class="font-display text-sm text-white tracking-widest">WTF</span>
+                        </div>
+                        <div>
+                            <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WHY TO FASHION
+                            </div>
+                        </div>
+                    </div>
+                    <p class="font-body text-wtf-muted text-sm leading-relaxed mb-4">Bold menswear for the modern man.
+                        Born in Vavuniya, worn everywhere.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Navigation
+                    </h4>
+                    <ul class="space-y-3">
+                        <template x-for="item in navItems" :key="item.id">
+                            <li><a @click="navigate(item.id)"
+                                    class="text-wtf-muted text-sm font-body hover:text-wtf-lime transition-colors cursor-pointer"
+                                    x-text="item.label"></a></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Contact</h4>
+                    <ul class="space-y-3 text-sm font-body text-wtf-muted">
+                        <li>Mannar Road, Vavuniya</li>
+                        <li>Northern Province, Sri Lanka</li>
+                        <li class="text-wtf-cream font-bold">077 123 4567</li>
+                        <li>info@whytofashion.lk</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Newsletter
+                    </h4>
+                    <p class="text-wtf-muted text-sm font-body mb-4">Get exclusive drops & style tips.</p>
+                    <form @submit.prevent="subscribeNewsletter()" class="flex gap-2">
+                        <input type="email" x-model="newsletterEmail" class="form-input flex-1 text-xs"
+                            placeholder="your@email.com" required />
+                        <button type="submit" class="btn-primary text-xs px-4"><span>→</span></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-wtf-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-wtf-muted font-body">© 2026 Why To Fashion (WTF). All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Privacy</a>
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Terms</a>
+                    <a @click="navigate('admin')"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase cursor-pointer">Admin</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" x-text="toastMsg"></div>
+
+</body>
+
+</html>

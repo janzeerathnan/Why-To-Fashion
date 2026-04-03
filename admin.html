@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WTF - Why To Fashion | Admin</title>
+
+    <!-- Tailwind CSS Config -->
+    <script src="tailwind-config.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- AOS Animate on Scroll -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- App Config (gitignored) -->
+    <script src="config.js"></script>
+    <!-- App JS -->
+    <script src="app.js"></script>
+</head>
+
+<body x-data="app('admin')">
+
+    <!-- NAVBAR -->
+    <nav class="navbar px-6 md:px-12 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
+                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
+                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                </div>
+                <div>
+                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
+                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
+                        2026 · Vavuniya</div>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <template x-for="item in navItems" :key="item.id">
+                    <a @click="navigate(item.id)" class="nav-link cursor-pointer"
+                        :class="{ active: currentPage === item.id }" x-text="item.label"></a>
+                </template>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <a @click="navigate('admin')"
+                    class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
+                    title="Admin Login">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Admin
+                </a>
+                <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
+            </div>
+        </div>
+        <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+        </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" :class="{ open: mobileOpen }">
+        <div class="flex flex-col h-full justify-center items-center gap-10">
+            <template x-for="item in navItems" :key="item.id">
+                <a @click="navigate(item.id); mobileOpen=false"
+                    class="font-display text-5xl tracking-widest text-wtf-cream hover:text-wtf-lime transition-colors cursor-pointer"
+                    x-text="item.label"></a>
+            </template>
+        </div>
+    </div>
+
+    <!-- PAGE: ADMIN -->
+    <div class="pt-20 min-h-screen bg-wtf-dark" x-transition:enter="page-enter">
+
+        <!-- Admin Login -->
+        <div x-show="!adminLoggedIn" class="flex items-center justify-center min-h-screen px-4">
+            <div class="w-full max-w-md">
+                <div class="text-center mb-10">
+                    <div class="w-16 h-16 bg-wtf-green mx-auto flex items-center justify-center mb-4 rounded">
+                        <span class="font-display text-2xl text-white">WTF</span>
+                    </div>
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream">ADMIN LOGIN</h2>
+                    <p class="text-wtf-muted text-sm font-body mt-2">Restricted access. Authorized personnel only.</p>
+                </div>
+                <form @submit.prevent="adminLogin()"
+                    class="bg-white border border-wtf-border p-8 space-y-6 rounded-lg shadow-sm">
+                    <div>
+                        <label class="form-label">Username</label>
+                        <input type="text" x-model="loginForm.username" class="form-input" placeholder="admin"
+                            required />
+                    </div>
+                    <div>
+                        <label class="form-label">Password</label>
+                        <input type="password" x-model="loginForm.password" class="form-input" placeholder="••••••••"
+                            required />
+                    </div>
+                    <div x-show="loginError" class="text-red-500 text-sm font-body" x-text="loginError"></div>
+                    <button type="submit" class="btn-primary w-full"><span>Access Admin Panel →</span></button>
+                    <p class="text-xs text-wtf-muted text-center font-body">Default: admin / wtf2026</p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div x-show="adminLoggedIn" class="flex min-h-screen">
+            <!-- Sidebar -->
+            <div
+                class="admin-sidebar w-64 flex-shrink-0 p-6 hidden md:flex flex-col bg-wtf-dark border-r border-wtf-border  shadow-xl relative z-10">
+                <div class="mb-10 text-center">
+                    <div
+                        class="w-14 h-14 bg-wtf-green mx-auto flex items-center justify-center mb-3 rounded-full shadow-lg">
+                        <span class="font-display text-xl text-white">WTF</span>
+                    </div>
+                    <div class="font-display text-xl tracking-widest text-wtf-cream">ADMIN PANEL</div>
+                    <div class="text-[0.65rem] font-heading tracking-widest text-wtf-muted uppercase mt-1">Management
+                        System</div>
+                </div>
+                <nav class="space-y-3 flex-1">
+                    <template x-for="tab in adminTabs" :key="tab.id">
+                        <button @click="adminTab = tab.id"
+                            class="w-full flex items-center gap-3 text-left px-5 py-3.5 font-heading font-600 text-sm tracking-widest uppercase transition-all rounded-lg"
+                            :class="adminTab === tab.id ? 'bg-wtf-green text-white shadow-md' : 'text-wtf-muted'">
+                            <span x-text="tab.icon" class="text-lg w-6 text-center"></span>
+                            <span x-text="tab.label"></span>
+                        </button>
+                    </template>
+                </nav>
+                <button @click="adminLoggedIn = false"
+                    class="flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-red-500/10 text-xs text-red-400 font-heading tracking-widest uppercase transition-all mt-auto rounded-lg font-bold border border-transparent hover:border-red-500/30">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+
+            <!-- Mobile Admin Tabs -->
+            <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-wtf-border flex z-50">
+                <template x-for="tab in adminTabs" :key="tab.id">
+                    <button @click="adminTab = tab.id" class="flex-1 py-3 text-xs font-heading tracking-wider uppercase"
+                        :class="adminTab === tab.id ? 'text-wtf-lime bg-green-50' : 'text-wtf-muted'">
+                        <span x-text="tab.icon"></span>
+                    </button>
+                </template>
+            </div>
+
+            <!-- Admin Content -->
+            <div class="flex-1 p-6 md:p-10 overflow-auto pb-20 md:pb-6 bg-wtf-dark">
+                <!-- Dashboard -->
+                <div x-show="adminTab === 'dashboard'">
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-8">DASHBOARD</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                        <template x-for="(stat, i) in [
+            { label: 'Products', value: products.length, color: 'text-wtf-lime' },
+            { label: 'Reviews', value: allReviews.length, color: 'text-wtf-gold' },
+            { label: 'Avg Rating', value: avgRating + '★', color: 'text-wtf-lime' },
+            { label: 'Categories', value: '6', color: 'text-wtf-gold' }
+          ]" :key="i">
+                            <div class="admin-card p-5 rounded-lg border-wtf-border bg-white">
+                                <div class="font-display text-4xl mb-1" :class="stat.color" x-text="stat.value"></div>
+                                <div class="text-xs text-wtf-muted font-heading tracking-widest uppercase"
+                                    x-text="stat.label"></div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="admin-card p-6 rounded-lg bg-white border-wtf-border">
+                        <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-4">Supabase
+                            Setup Guide</h3>
+                        <div class="space-y-2 text-sm text-wtf-muted font-body">
+                            <p>1. Create a Supabase project at <span class="text-wtf-lime font-bold">supabase.com</span>
+                            </p>
+                            <p>2. Run the SQL in the Setup tab to create tables</p>
+                            <p>3. Replace <code
+                                    class="text-amber-800 bg-amber-50 px-1 py-0.5 rounded text-xs border border-amber-200">SUPABASE_URL</code>
+                                and <code
+                                    class="text-amber-800 bg-amber-50 px-1 py-0.5 rounded text-xs border border-amber-200">SUPABASE_ANON_KEY</code>
+                                in <code class="font-mono font-bold text-gray-700">app.js</code></p>
+                            <p>4. Products and reviews will sync automatically</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div x-show="adminTab === 'products'">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="font-display text-4xl tracking-widest text-wtf-cream">PRODUCTS</h2>
+                        <button @click="showAddProduct = !showAddProduct" class="btn-primary"><span>+ Add
+                                Product</span></button>
+                    </div>
+
+                    <!-- Add Product Form -->
+                    <div x-show="showAddProduct" class="admin-card p-6 mb-8 rounded-lg bg-white" data-aos="fade-down">
+                        <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-6">Add New
+                            Product</h3>
+                        <form @submit.prevent="addProduct()" class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="form-label">Product Name *</label>
+                                <input type="text" x-model="newProduct.name" class="form-input"
+                                    placeholder="e.g. Classic Bomber Jacket" required />
+                            </div>
+                            <div>
+                                <label class="form-label">Price (Rs.) *</label>
+                                <input type="number" x-model="newProduct.price" class="form-input" placeholder="2500"
+                                    required />
+                            </div>
+                            <div>
+                                <label class="form-label">Category</label>
+                                <select x-model="newProduct.category" class="form-input">
+                                    <option value="">Select Category</option>
+                                    <option>Shirts</option>
+                                    <option>Pants</option>
+                                    <option>Jackets</option>
+                                    <option>Accessories</option>
+                                    <option>Shoes</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="form-label">Product Image</label>
+                                <!-- File upload -->
+                                <input type="file" @change="handleImageUpload($event); imageUploadError=''"
+                                    class="form-input text-xs" accept="image/*" />
+                                <div x-show="uploadingImage" class="text-xs text-wtf-lime mt-1 font-body">⏳ Uploading to
+                                    storage...</div>
+                                <!-- Upload error → show URL fallback -->
+                                <div x-show="imageUploadError" class="text-xs text-red-500 mt-1 font-body"
+                                    x-text="imageUploadError"></div>
+                                <!-- Manual URL fallback -->
+                                <div class="mt-2">
+                                    <label class="text-xs text-wtf-muted font-heading tracking-widest uppercase">Or
+                                        paste image URL</label>
+                                    <input type="url" x-model="newProduct.image_url" class="form-input mt-1 text-sm"
+                                        placeholder="https://example.com/image.jpg" />
+                                </div>
+                                <!-- Preview -->
+                                <img x-show="newProduct.image_url" :src="newProduct.image_url"
+                                    class="mt-3 h-20 w-20 object-cover rounded border border-wtf-border"
+                                    onerror="this.style.display='none'" />
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="form-label">Description</label>
+                                <textarea x-model="newProduct.description" class="form-input" rows="3"
+                                    placeholder="Describe the product..."></textarea>
+                            </div>
+                            <div class="md:col-span-2 flex gap-4 mt-2">
+                                <button type="submit" class="btn-primary" :disabled="addingProduct">
+                                    <span x-text="addingProduct ? 'Adding...' : 'Add Product'"></span>
+                                </button>
+                                <button type="button" @click="showAddProduct = false"
+                                    class="btn-outline">Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Products Table -->
+                    <div class="admin-card overflow-hidden rounded-lg bg-white border border-wtf-border">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left">
+                                <thead>
+                                    <tr class="bg-gray-50 border-b border-gray-200">
+                                        <th
+                                            class="px-4 py-3 text-xs font-heading font-600 text-wtf-muted tracking-widest uppercase">
+                                            Product</th>
+                                        <th
+                                            class="px-4 py-3 text-xs font-heading font-600 text-wtf-muted tracking-widest uppercase hidden md:table-cell">
+                                            Category</th>
+                                        <th
+                                            class="px-4 py-3 text-xs font-heading font-600 text-wtf-muted tracking-widest uppercase">
+                                            Price</th>
+                                        <th
+                                            class="text-right px-4 py-3 text-xs font-heading font-600 text-wtf-muted tracking-widest uppercase">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template x-for="product in products" :key="product.id">
+                                        <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                                            <td class="px-4 py-4">
+                                                <div class="flex items-center gap-3">
+                                                    <img :src="product.image_url || 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=60&q=80'"
+                                                        class="w-10 h-10 object-cover rounded" style="aspect-ratio:1;"
+                                                        onerror="this.src='https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=60&q=80'" />
+                                                    <span class="font-body text-wtf-cream text-sm font-semibold"
+                                                        x-text="product.name"></span>
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-4 hidden md:table-cell">
+                                                <span class="category-badge" x-text="product.category || '—'"></span>
+                                            </td>
+                                            <td class="px-4 py-4 font-heading text-wtf-lime font-semibold"
+                                                x-text="'Rs. ' + Number(product.price).toLocaleString()"></td>
+                                            <td class="px-4 py-4 text-right">
+                                                <div class="flex items-center justify-end gap-3">
+                                                    <button @click="openEditProduct(product)"
+                                                        class="text-wtf-lime hover:text-green-400 font-bold text-xs font-heading tracking-widest uppercase transition-colors">Edit</button>
+                                                    <button @click="deleteProduct(product.id)"
+                                                        class="text-red-500 hover:text-red-700 font-bold text-xs font-heading tracking-widest uppercase transition-colors">Delete</button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                    <tr x-show="products.length === 0">
+                                        <td colspan="4" class="px-4 py-8 text-center text-wtf-muted font-body text-sm">
+                                            No products found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Edit Product Modal -->
+                    <div x-show="editProductModal" class="fixed inset-0 z-50 flex items-center justify-center px-4"
+                        style="background:rgba(0,0,0,0.7);" x-transition>
+                        <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg p-8 relative" @click.stop>
+                            <button @click="editProductModal = false"
+                                class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 text-2xl font-bold leading-none">&times;</button>
+                            <h3 class="font-display text-2xl tracking-widest text-wtf-dark mb-6">EDIT PRODUCT</h3>
+                            <form @submit.prevent="saveEditProduct()" class="grid md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="form-label">Product Name *</label>
+                                    <input type="text" x-model="editProduct.name" class="form-input" required />
+                                </div>
+                                <div>
+                                    <label class="form-label">Price (Rs.) *</label>
+                                    <input type="number" x-model="editProduct.price" class="form-input" required />
+                                </div>
+                                <div>
+                                    <label class="form-label">Category</label>
+                                    <select x-model="editProduct.category" class="form-input">
+                                        <option value="">Select Category</option>
+                                        <option>Shirts</option>
+                                        <option>Pants</option>
+                                        <option>Jackets</option>
+                                        <option>Accessories</option>
+                                        <option>Shoes</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label">Image URL</label>
+                                    <input type="text" x-model="editProduct.image_url" class="form-input"
+                                        placeholder="https://..." />
+                                    <img x-show="editProduct.image_url" :src="editProduct.image_url"
+                                        class="mt-2 h-14 w-14 object-cover rounded border border-wtf-border" />
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="form-label">Description</label>
+                                    <textarea x-model="editProduct.description" class="form-input" rows="3"></textarea>
+                                </div>
+                                <div class="md:col-span-2 flex gap-4 mt-2">
+                                    <button type="submit" class="btn-primary" :disabled="savingEdit">
+                                        <span x-text="savingEdit ? 'Saving...' : 'Save Changes'"></span>
+                                    </button>
+                                    <button type="button" @click="editProductModal = false"
+                                        class="btn-outline">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Tab -->
+                <div x-show="adminTab === 'reviews'">
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-8">REVIEWS</h2>
+                    <div class="space-y-4">
+                        <template x-for="review in allReviews" :key="review.id">
+                            <div
+                                class="admin-card p-5 flex items-start justify-between gap-4 rounded-lg bg-white border border-wtf-border">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-2">
+                                        <span class="font-heading font-600 text-wtf-cream text-sm"
+                                            x-text="review.name || review.email"></span>
+                                        <span class="text-xs text-wtf-muted font-body"
+                                            x-text="new Date(review.created_at).toLocaleDateString()"></span>
+                                        <div class="flex">
+                                            <template x-for="s in 5" :key="s">
+                                                <span :class="s <= review.rating ? 'text-wtf-gold' : 'text-gray-300'"
+                                                    class="text-sm">★</span>
+                                            </template>
+                                        </div>
+                                    </div>
+                                    <p class="text-wtf-muted text-sm font-body" x-text="review.review_text"></p>
+                                    <div class="text-xs text-wtf-muted mt-2 font-heading tracking-widest uppercase"
+                                        x-text="'Product: ' + (review.product_name || 'N/A')"></div>
+                                </div>
+                                <button @click="deleteReview(review.id)"
+                                    class="text-red-500 hover:text-red-700 font-bold text-xs font-heading tracking-widest uppercase transition-colors flex-shrink-0">Delete</button>
+                            </div>
+                        </template>
+                        <div x-show="allReviews.length === 0" class="text-center py-12 text-wtf-muted font-body">No
+                            reviews yet.</div>
+                    </div>
+                </div>
+
+                <!-- Setup Tab -->
+                <div x-show="adminTab === 'setup'">
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-8">SUPABASE SETUP</h2>
+                    <div class="admin-card p-6 space-y-6 rounded-lg bg-white border border-wtf-border">
+                        <div>
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-3">1.
+                                Create Tables in Supabase SQL Editor</h3>
+                            <pre class="bg-gray-900 border border-wtf-border p-4 text-xs text-lime-400 overflow-x-auto thin-scroll rounded"
+                                style="font-family: monospace; line-height: 1.6;">-- Products table
+CREATE TABLE products (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text NOT NULL,
+  price numeric NOT NULL,
+  image_url text,
+  description text,
+  category text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- Reviews table
+CREATE TABLE reviews (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  name text,
+  email text NOT NULL,
+  product_id uuid REFERENCES products(id) ON DELETE SET NULL,
+  review_text text NOT NULL,
+  rating integer CHECK (rating >= 1 AND rating <= 5),
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(email)  -- one review per email
+);
+
+-- Enable RLS
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+
+-- Public read policies
+CREATE POLICY "Public read products" ON products FOR SELECT USING (true);
+CREATE POLICY "Public read reviews" ON reviews FOR SELECT USING (true);
+
+-- Anon insert reviews
+CREATE POLICY "Anon insert reviews" ON reviews FOR INSERT WITH CHECK (true);
+
+-- Service role full access (admin)
+CREATE POLICY "Admin all products" ON products USING (auth.role() = 'service_role');
+CREATE POLICY "Admin all reviews" ON reviews USING (auth.role() = 'service_role');</pre>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-3">2.
+                                Create Storage Bucket</h3>
+                            <div class="space-y-2 text-sm text-wtf-muted font-body mb-3">
+                                <p>- Go to Storage in Supabase dashboard</p>
+                                <p>- Create a new bucket named <code
+                                        class="text-amber-800 bg-amber-50 px-1 py-0.5 rounded text-xs border border-amber-200">product-images</code>
+                                </p>
+                                <p>- Mark the bucket as <span class="text-wtf-lime font-bold">Public</span></p>
+                                <p>- Add a Storage Policy allowing public reads and authenticated (or public) uploads
+                                </p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-3">3.
+                                Update Credentials</h3>
+                            <p class="text-wtf-muted text-sm font-body mb-3">Open <code>app.js</code> and find the
+                                Supabase config at the top. Replace:</p>
+                            <pre class="bg-gray-900 border border-wtf-border p-4 text-xs text-amber-400 overflow-x-auto rounded"
+                                style="font-family: monospace;">const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';</pre>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-3">4.
+                                Seed Sample Data</h3>
+                            <p class="text-wtf-muted text-sm font-body mb-4">After creating the tables, run the seed to
+                                populate your database with sample products and reviews. <span
+                                    class="text-yellow-600 font-bold">Warning: this will add data — avoid running twice
+                                    unless you clear the tables first.</span></p>
+                            <p class="text-wtf-muted text-sm font-body mb-3">First, run this SQL in your Supabase SQL
+                                Editor to allow anon inserts for seeding:</p>
+                            <pre class="bg-gray-900 border border-wtf-border p-4 text-xs text-lime-400 overflow-x-auto thin-scroll rounded mb-4"
+                                style="font-family: monospace; line-height: 1.6;">-- Allow anon to insert products (needed for seeding via admin panel)
+CREATE POLICY "Anon insert products" ON products FOR INSERT WITH CHECK (true);
+-- Allow anon to delete products (needed for admin delete)
+CREATE POLICY "Anon delete products" ON products FOR DELETE USING (true);
+-- Allow anon to update products (needed for admin edit)
+CREATE POLICY "Anon update products" ON products FOR UPDATE USING (true);
+-- Allow anon to delete reviews (needed for admin delete)
+CREATE POLICY "Anon delete reviews" ON reviews FOR DELETE USING (true);</pre>
+                            <button @click="seedDatabase()" :disabled="seeding" class="btn-primary">
+                                <span
+                                    x-text="seeding ? '⏳ Seeding...' : '🌱 Seed Database (8 products + 5 reviews)'"></span>
+                            </button>
+                        </div>
+                        <div>
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-3">5.
+                                Admin Credentials</h3>
+                            <p class="text-wtf-muted text-sm font-body">Default admin login: <span
+                                    class="text-wtf-lime font-bold">admin / wtf6</span><br />Change the <code
+                                    class="text-amber-700 bg-amber-50 px-1 rounded text-xs">ADMIN_PASS</code> constant
+                                in <code>app.js</code> to update password.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" x-text="toastMsg"></div>
+
+</body>
+
+</html>

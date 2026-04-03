@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WTF - Why To Fashion | About</title>
+
+    <!-- Tailwind CSS Config -->
+    <script src="tailwind-config.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- AOS Animate on Scroll -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- App Config (gitignored) -->
+    <script src="config.js"></script>
+    <!-- App JS -->
+    <script src="app.js"></script>
+</head>
+
+<body x-data="app('about')">
+
+    <!-- NAVBAR -->
+    <nav class="navbar px-6 md:px-12 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
+                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
+                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                </div>
+                <div>
+                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
+                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
+                        2026 · Vavuniya</div>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <template x-for="item in navItems" :key="item.id">
+                    <a @click="navigate(item.id)" class="nav-link cursor-pointer"
+                        :class="{ active: currentPage === item.id }" x-text="item.label"></a>
+                </template>
+            </div>
+            <div class="hidden md:flex items-center gap-4">
+                <a @click="navigate('admin')"
+                    class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
+                    title="Admin Login">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Admin
+                </a>
+                <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
+            </div>
+        </div>
+        <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+        </button>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" :class="{ open: mobileOpen }">
+        <div class="flex flex-col h-full justify-center items-center gap-10">
+            <template x-for="item in navItems" :key="item.id">
+                <a @click="navigate(item.id); mobileOpen=false"
+                    class="font-display text-5xl tracking-widest text-wtf-cream hover:text-wtf-lime transition-colors cursor-pointer"
+                    x-text="item.label"></a>
+            </template>
+        </div>
+    </div>
+
+    <!-- PAGE: ABOUT -->
+    <div class="pt-24" x-transition:enter="page-enter">
+        <!-- Hero Banner -->
+        <div class="relative h-64 md:h-80 overflow-hidden">
+            <img src="https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=1400&q=80" alt="About"
+                class="w-full h-full object-cover" style="filter: grayscale(10%) brightness(0.6);" />
+            <div class="absolute inset-0 flex items-center px-6 md:px-12 bg-black/40">
+                <div class="max-w-7xl mx-auto w-full text-white">
+                    <div class="section-tag mb-3 !text-white">Est. 2026</div>
+                    <h1 class="font-display text-6xl md:text-8xl tracking-widest text-white">OUR STORY</h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="max-w-6xl mx-auto px-6 md:px-12 py-24">
+            <!-- Brand Story -->
+            <div class="grid md:grid-cols-2 gap-16 mb-24">
+                <div data-aos="fade-up">
+                    <div class="section-tag mb-4">Why We Exist</div>
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-6">WHY TO<br>FASHION?</h2>
+                    <p class="font-body text-wtf-muted leading-relaxed mb-4">
+                        Why To Fashion (WTF) was born from a simple frustration: great menswear in Sri Lanka was either
+                        overpriced imported brands or generic local alternatives with no character.
+                    </p>
+                    <p class="font-body text-wtf-muted leading-relaxed mb-4">
+                        Founded in Vavuniya, we set out to create a brand that speaks to young Sri Lankan men — bold
+                        enough to make a statement, accessible enough to wear every day.
+                    </p>
+                    <p class="font-body text-wtf-muted leading-relaxed">
+                        Every piece in our collection is handpicked for quality, fit, and attitude. Because we believe
+                        the way you dress is a direct expression of who you are.
+                    </p>
+                </div>
+                <div data-aos="fade-up" data-aos-delay="150">
+                    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Brand"
+                        class="w-full object-cover" style="aspect-ratio:4/3; filter:grayscale(0%);" />
+                </div>
+            </div>
+
+            <!-- Mission & Vision -->
+            <div class="grid md:grid-cols-2 gap-6 mb-24">
+                <div class="bg-wtf-card border border-wtf-border p-8" data-aos="fade-up">
+                    <div class="w-12 h-12 bg-wtf-green flex items-center justify-center mb-6">
+                        <span class="font-display text-xl text-white">M</span>
+                    </div>
+                    <h3 class="font-display text-3xl tracking-widest text-wtf-cream mb-4">OUR MISSION</h3>
+                    <p class="font-body text-wtf-muted leading-relaxed">
+                        To provide quality, stylish menswear that empowers young men to express themselves boldly —
+                        without breaking the bank. We're here to prove that style has no price tag.
+                    </p>
+                </div>
+                <div class="bg-wtf-card border border-wtf-border p-8" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-12 h-12 bg-wtf-green flex items-center justify-center mb-6">
+                        <span class="font-display text-xl text-white">V</span>
+                    </div>
+                    <h3 class="font-display text-3xl tracking-widest text-wtf-cream mb-4">OUR VISION</h3>
+                    <p class="font-body text-wtf-muted leading-relaxed">
+                        To become the defining menswear brand of Sri Lanka — a label that young men wear with pride, not
+                        just for the clothes, but for what the brand stands for: authenticity and confidence.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Values -->
+            <div class="mb-24" data-aos="fade-up">
+                <div class="section-tag mb-4">What Drives Us</div>
+                <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-10">CORE VALUES</h2>
+                <div class="grid md:grid-cols-4 gap-6">
+                    <template x-for="(val, i) in [
+          { icon: '⚡', title: 'Bold Design', desc: 'Every piece challenges convention. We don\'t do boring.' },
+          { icon: '🔨', title: 'Quality First', desc: 'Premium materials, precise cuts, built to last.' },
+          { icon: '🌿', title: 'Local Roots', desc: 'Proudly Sri Lankan. Born in Vavuniya, worn everywhere.' },
+          { icon: '👥', title: 'Community', desc: 'Fashion is better shared. We build a tribe, not just customers.' }
+        ]" :key="i">
+                        <div class="border border-wtf-border p-6 hover:border-wtf-green transition-colors bg-white rounded-lg"
+                            :data-aos="'fade-up'" :data-aos-delay="i * 80">
+                            <div class="text-3xl mb-4" x-text="val.icon"></div>
+                            <h4 class="font-heading font-700 tracking-widest text-wtf-cream text-sm uppercase mb-2"
+                                x-text="val.title"></h4>
+                            <p class="font-body text-wtf-muted text-sm leading-relaxed" x-text="val.desc"></p>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Team -->
+            <div data-aos="fade-up">
+                <div class="section-tag mb-4">The People</div>
+                <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-10">MEET THE TEAM</h2>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <template x-for="(member, i) in [
+          { name: 'Arun Kumar', role: 'Founder & CEO', img: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&q=80' },
+          { name: 'Priya Nair', role: 'Head of Design', img: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=300&q=80' },
+          { name: 'Raj Sharma', role: 'Brand Manager', img: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&q=80' }
+        ]" :key="i">
+                        <div class="text-center" :data-aos="'fade-up'" :data-aos-delay="i * 100">
+                            <div class="relative inline-block mb-4">
+                                <img :src="member.img" :alt="member.name"
+                                    class="w-24 h-24 rounded-full object-cover mx-auto" />
+                                <div
+                                    class="absolute -bottom-1 -right-1 w-6 h-6 bg-wtf-green rounded-full border-2 border-white">
+                                </div>
+                            </div>
+                            <div class="font-heading font-600 text-wtf-cream tracking-wide" x-text="member.name"></div>
+                            <div class="text-xs text-wtf-muted font-heading tracking-widest uppercase mt-1"
+                                x-text="member.role"></div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-20 pb-8 px-6 md:px-12 bg-wtf-dark">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-6 cursor-pointer" @click="navigate('home')">
+                        <div class="w-12 h-12 bg-wtf-green flex items-center justify-center">
+                            <span class="font-display text-sm text-white tracking-widest">WTF</span>
+                        </div>
+                        <div>
+                            <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WHY TO FASHION
+                            </div>
+                        </div>
+                    </div>
+                    <p class="font-body text-wtf-muted text-sm leading-relaxed mb-4">Bold menswear for the modern man.
+                        Born in Vavuniya, worn everywhere.</p>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Navigation
+                    </h4>
+                    <ul class="space-y-3">
+                        <template x-for="item in navItems" :key="item.id">
+                            <li><a @click="navigate(item.id)"
+                                    class="text-wtf-muted text-sm font-body hover:text-wtf-lime transition-colors cursor-pointer"
+                                    x-text="item.label"></a></li>
+                        </template>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Contact</h4>
+                    <ul class="space-y-3 text-sm font-body text-wtf-muted">
+                        <li>Mannar Road, Vavuniya</li>
+                        <li>Northern Province, Sri Lanka</li>
+                        <li class="text-wtf-cream font-bold">077 123 4567</li>
+                        <li>info@whytofashion.lk</li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Newsletter
+                    </h4>
+                    <p class="text-wtf-muted text-sm font-body mb-4">Get exclusive drops & style tips.</p>
+                    <form @submit.prevent="subscribeNewsletter()" class="flex gap-2">
+                        <input type="email" x-model="newsletterEmail" class="form-input flex-1 text-xs"
+                            placeholder="your@email.com" required />
+                        <button type="submit" class="btn-primary text-xs px-4"><span>→</span></button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="border-t border-wtf-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-wtf-muted font-body">© 2026 Why To Fashion (WTF). All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Privacy</a>
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Terms</a>
+                    <a @click="navigate('admin')"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase cursor-pointer">Admin</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" x-text="toastMsg"></div>
+
+</body>
+
+</html>

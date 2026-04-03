@@ -1,0 +1,20 @@
+# 1. Go to your project folder
+cd /home/athnan/Documents/Projects/test
+
+# 2. Make sure git knows your gitignore (removes previously tracked secrets if any)
+git rm --cached config.js .env 2>/dev/null; echo "ok"
+
+# 3. Check WHAT will be committed (verify no secrets):
+git status
+
+# 4. Add all safe files
+git add .
+
+# 5. Double-check — config.js and .env should NOT appear here:
+git status
+
+# 6. Commit
+git commit -m "Production-ready: externalize config, env setup, review edit feature"
+
+# 7. Push
+git push origin main

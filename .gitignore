@@ -1,0 +1,16 @@
+# Git ignore rules for WTF - Why To Fashion
+
+# ── Secrets & local config (NEVER commit these) ──
+.env
+config.js
+
+# ── Dependencies ──
+node_modules/
+
+# ── OS / Editor junk ──
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/

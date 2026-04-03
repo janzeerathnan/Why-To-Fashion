@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WTF - Why To Fashion | Products</title>
+
+    <!-- Tailwind CSS Config -->
+    <script src="tailwind-config.js"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <!-- AOS Animate on Scroll -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- Google Fonts: Barlow Condensed + Barlow -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@300;400;600;700;900&family=Barlow:wght@300;400;500;600&family=Bebas+Neue&display=swap"
+        rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- App Config (gitignored) -->
+    <script src="config.js"></script>
+    <!-- App JS -->
+    <script src="app.js"></script>
+</head>
+
+<body x-data="app('products')">
+
+    <!-- NAVBAR -->
+    <nav class="navbar px-6 md:px-12 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
+                <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
+                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                </div>
+                <div>
+                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
+                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
+                        2026 · Vavuniya</div>
+                </div>
+            </div>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center gap-8">
+                <template x-for="item in navItems" :key="item.id">
+                    <a @click="navigate(item.id)" class="nav-link cursor-pointer"
+                        :class="{ active: currentPage === item.id }" x-text="item.label"></a>
+                </template>
+            </div>
+
+            <!-- Cart / Admin indicator -->
+            <div class="hidden md:flex items-center gap-4">
+                <a @click="navigate('admin')"
+                    class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
+                    title="Admin Login">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    Admin
+                </a>
+                <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
+            </div>
+
+            <!-- Hamburger -->
+            <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
+                <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                    :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+                <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+                <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+                    :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" :class="{ open: mobileOpen }">
+        <div class="flex flex-col h-full justify-center items-center gap-10">
+            <template x-for="item in navItems" :key="item.id">
+                <a @click="navigate(item.id); mobileOpen=false"
+                    class="font-display text-5xl tracking-widest text-wtf-cream hover:text-wtf-lime transition-colors cursor-pointer"
+                    x-text="item.label"></a>
+            </template>
+        </div>
+    </div>
+
+    <!-- PAGE: PRODUCTS -->
+    <div class="pt-24" x-transition:enter="page-enter">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 py-12">
+            <!-- Header -->
+            <div class="mb-12">
+                <div class="section-tag mb-3">Browse Collection</div>
+                <h1 class="font-display text-6xl md:text-7xl tracking-widest text-wtf-cream">ALL PRODUCTS</h1>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2 mb-10">
+                <template x-for="cat in ['All', 'Shirts', 'Pants', 'Jackets', 'Accessories', 'Shoes']" :key="cat">
+                    <button class="filter-tab" :class="{ active: productFilter === cat }" @click="productFilter = cat"
+                        x-text="cat"></button>
+                </template>
+            </div>
+
+            <!-- Loading -->
+            <div x-show="loading" class="flex justify-center py-20">
+                <svg class="spinner w-8 h-8 text-wtf-lime" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+            </div>
+
+            <!-- Products Grid -->
+            <div x-show="!loading" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+                <template x-for="product in filteredProducts" :key="product.id">
+                    <div class="product-card relative" @click="openProduct(product)" data-aos="fade-up">
+                        <div class="relative overflow-hidden" style="aspect-ratio:3/4;">
+                            <img :src="product.image_url || 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80'"
+                                :alt="product.name" class="w-full h-full object-cover"
+                                onerror="this.src='https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80'" />
+                            <div class="overlay"></div>
+                            <div class="absolute top-3 left-3">
+                                <span class="category-badge" x-text="product.category || 'Item'"></span>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-white">
+                            <h3 class="font-heading font-600 text-wtf-cream text-base tracking-wide leading-tight"
+                                x-text="product.name"></h3>
+                            <p class="text-xs text-wtf-muted mt-1 line-clamp-1 font-body" x-text="product.description">
+                            </p>
+                            <div class="flex items-center justify-between mt-3">
+                                <span class="font-display text-xl text-wtf-lime tracking-wide"
+                                    x-text="'Rs. ' + Number(product.price).toLocaleString()"></span>
+                                <button @click.stop="openReviewModal(product)"
+                                    class="text-xs text-wtf-muted hover:text-wtf-gold transition-colors font-heading tracking-wider">★
+                                    Review</button>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="!loading && filteredProducts.length === 0" class="text-center py-24">
+                <div class="font-display text-8xl text-wtf-border mb-4">404</div>
+                <p class="text-wtf-muted font-heading tracking-widest text-lg">No products in this category yet.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXTRACTED MODALS (product and review) -->
+
+    <!-- PRODUCT DETAIL MODAL -->
+    <div x-show="productModal" class="modal-bg" @click.self="productModal = false" style="display:none;">
+        <div class="modal-content" x-show="productModal">
+            <div class="grid md:grid-cols-2">
+                <!-- Image -->
+                <div class="relative" style="aspect-ratio:3/4; min-height: 300px;">
+                    <img :src="selectedProduct?.image_url || 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80'"
+                        :alt="selectedProduct?.name" class="w-full h-full object-cover"
+                        onerror="this.src='https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=600&q=80'" />
+                    <button @click="productModal = false"
+                        class="absolute top-4 right-4 w-8 h-8 bg-black/80 flex items-center justify-center text-white hover:text-wtf-lime transition-colors text-lg rounded-full">×</button>
+                </div>
+                <!-- Info -->
+                <div class="p-8 flex flex-col justify-between bg-white">
+                    <div>
+                        <div class="section-tag mb-3" x-text="selectedProduct?.category || 'Item'"></div>
+                        <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-2"
+                            x-text="selectedProduct?.name"></h2>
+                        <div class="font-display text-3xl text-wtf-lime mb-6"
+                            x-text="'Rs. ' + Number(selectedProduct?.price || 0).toLocaleString()"></div>
+                        <p class="font-body text-wtf-muted leading-relaxed mb-8"
+                            x-text="selectedProduct?.description || 'Premium quality menswear from WTF\'s curated collection.'">
+                        </p>
+                        <div class="space-y-2 mb-8 border-t border-wtf-border pt-6">
+                            <div class="flex items-center gap-2 text-sm text-wtf-muted font-body">
+                                <span class="text-wtf-lime">✓</span> Premium fabric quality
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-wtf-muted font-body">
+                                <span class="text-wtf-lime">✓</span> Available at Mannar Road, Vavuniya
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-wtf-muted font-body">
+                                <span class="text-wtf-lime">✓</span> Call 077 123 4567 to order
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button @click="openReviewModal(selectedProduct); productModal = false"
+                            class="btn-primary flex-1"><span>★ Write Review</span></button>
+                        <button @click="productModal = false" class="btn-outline">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- REVIEW FORM MODAL -->
+    <div x-show="reviewModal" class="modal-bg" @click.self="reviewModal = false" style="display:none;">
+        <div class="modal-content max-w-lg" x-show="reviewModal">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-display text-3xl tracking-widest text-wtf-cream"
+                        x-text="existingReviewId ? 'UPDATE REVIEW' : 'WRITE REVIEW'"></h2>
+                    <button @click="reviewModal = false"
+                        class="text-wtf-muted hover:text-wtf-cream transition-colors text-2xl">&times;</button>
+                </div>
+                <!-- Product context -->
+                <div x-show="reviewingProduct"
+                    class="flex items-center gap-3 mb-6 p-4 bg-wtf-dark border border-wtf-border rounded">
+                    <img :src="reviewingProduct?.image_url || 'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=80&q=80'"
+                        class="w-12 h-12 object-cover rounded" />
+                    <div>
+                        <div class="font-heading font-600 text-wtf-cream text-sm" x-text="reviewingProduct?.name"></div>
+                        <div class="text-xs text-wtf-muted"
+                            x-text="'Rs. ' + Number(reviewingProduct?.price || 0).toLocaleString()"></div>
+                    </div>
+                </div>
+                <!-- Existing review info banner -->
+                <div x-show="existingReviewId"
+                    class="mb-5 flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-blue-700 text-sm font-body">
+                    <span class="text-lg leading-none">&#8505;&#65039;</span>
+                    <span>Your previous review is loaded below. Edit it and click <strong>Update Review</strong> to save
+                        your changes.</span>
+                </div>
+                <form @submit.prevent="submitReview()" class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label">Your Name *</label>
+                            <input type="text" x-model="reviewForm.name" class="form-input" placeholder="John Doe"
+                                required />
+                        </div>
+                        <div>
+                            <label class="form-label">Email *</label>
+                            <div class="relative">
+                                <input type="email" x-model="reviewForm.email" class="form-input pr-8"
+                                    placeholder="you@email.com" @blur="checkExistingReview()" required />
+                                <span x-show="checkingEmail"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 text-wtf-lime text-xs">&#8987;</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Star Rating -->
+                    <div>
+                        <label class="form-label">Rating *</label>
+                        <div class="flex gap-1 mt-1">
+                            <template x-for="s in 5" :key="s">
+                                <span class="star" :class="{ active: s <= reviewForm.rating }"
+                                    @click="reviewForm.rating = s">&#9733;</span>
+                            </template>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="form-label">Your Review *</label>
+                        <textarea x-model="reviewForm.review_text" class="form-input" rows="4"
+                            placeholder="Tell us about your experience..." required style="resize:vertical;"></textarea>
+                    </div>
+                    <!-- Error / info message -->
+                    <div x-show="reviewError"
+                        :class="existingReviewId ? 'text-blue-600 bg-blue-50 border border-blue-200 rounded px-3 py-2' : 'text-red-400'"
+                        class="text-sm font-body" x-text="reviewError"></div>
+                    <button type="submit" class="btn-primary w-full" :disabled="submittingReview || checkingEmail">
+                        <span
+                            x-text="submittingReview ? 'Saving...' : (existingReviewId ? 'Update Review &#8594;' : 'Submit Review &#8594;')"></span>
+                    </button>
+                    <p x-show="!existingReviewId" class="text-xs text-wtf-muted text-center font-body">
+                        Tip: If you've reviewed before, enter the same email to edit your review.
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="pt-20 pb-8 px-6 md:px-12 bg-white mt-12">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-4 gap-12 mb-16">
+                <div class="md:col-span-1">
+                    <div class="flex items-center gap-3 mb-6 cursor-pointer" @click="navigate('home')">
+                        <div class="w-12 h-12 bg-wtf-green flex items-center justify-center">
+                            <span class="font-display text-sm text-white tracking-widest">WTF</span>
+                        </div>
+                        <div>
+                            <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WHY TO FASHION
+                            </div>
+                        </div>
+                    </div>
+                    <p class="font-body text-wtf-muted text-sm leading-relaxed mb-4">Bold menswear for the modern man.
+                        Born in Vavuniya, worn everywhere.</p>
+                </div>
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Navigation
+                    </h4>
+                    <ul class="space-y-3">
+                        <template x-for="item in navItems" :key="item.id">
+                            <li><a @click="navigate(item.id)"
+                                    class="text-wtf-muted text-sm font-body hover:text-wtf-lime transition-colors cursor-pointer"
+                                    x-text="item.label"></a></li>
+                        </template>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Contact</h4>
+                    <ul class="space-y-3 text-sm font-body text-wtf-muted">
+                        <li>Mannar Road, Vavuniya</li>
+                        <li>Northern Province, Sri Lanka</li>
+                        <li class="text-wtf-cream font-bold">077 123 4567</li>
+                        <li>info@whytofashion.lk</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-heading font-700 text-wtf-cream tracking-widest uppercase text-xs mb-6">Newsletter
+                    </h4>
+                    <p class="text-wtf-muted text-sm font-body mb-4">Get exclusive drops & style tips.</p>
+                    <form @submit.prevent="subscribeNewsletter()" class="flex gap-2">
+                        <input type="email" x-model="newsletterEmail" class="form-input flex-1 text-xs"
+                            placeholder="your@email.com" required />
+                        <button type="submit" class="btn-primary text-xs px-4"><span>→</span></button>
+                    </form>
+                </div>
+            </div>
+            <div class="border-t border-wtf-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                <p class="text-xs text-wtf-muted font-body">© 2026 Why To Fashion (WTF). All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Privacy</a>
+                    <a href="#"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Terms</a>
+                    <a @click="navigate('admin')"
+                        class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase cursor-pointer">Admin</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast" x-text="toastMsg"></div>
+
+</body>
+
+</html>
