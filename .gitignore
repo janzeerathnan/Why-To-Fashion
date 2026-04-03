@@ -2,7 +2,7 @@
 
 # ── Secrets & local config (NEVER commit these) ──
 .env
-config.js
+# config.js
 
 # ── Dependencies ──
 node_modules/
