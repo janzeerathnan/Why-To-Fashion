@@ -1,10 +1,4 @@
-/**
- * WTF - Why To Fashion
- * Browser Configuration
- *
- * Copy this file to config.js and fill in your real values.
- * NEVER commit config.js to version control.
- */
+
 window.APP_CONFIG = {
     // Supabase project URL — from: supabase.com → Project Settings → API
     SUPABASE_URL: 'https://ccmzkzdefmxnbtzgxogh.supabase.co',
@@ -14,5 +8,5 @@ window.APP_CONFIG = {
 
     // Admin panel credentials (change these!)
     ADMIN_USER: 'admin',
-    ADMIN_PASS: 'wrf2026',
+    ADMIN_PASS: 'wtf2026',
 };

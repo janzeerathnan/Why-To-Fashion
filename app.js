@@ -54,6 +54,9 @@ document.addEventListener('alpine:init', () => {
         get homeReviews() {
             return this.allReviews.slice(0, 3);
         },
+        get recentReviews() {
+            return this.allReviews.slice(0, 5);
+        },
 
         // ── Filters
         productFilter: 'All',
@@ -78,12 +81,12 @@ document.addEventListener('alpine:init', () => {
 
         // ── Admin
         adminLoggedIn: false,
+        adminSidebarOpen: false,
         adminTab: 'dashboard',
         adminTabs: [
-            { id: 'dashboard', label: 'Dashboard', icon: '◉' },
+            { id: 'dashboard', label: 'Performance', icon: '◉' },
             { id: 'products', label: 'Products', icon: '⊞' },
             { id: 'reviews', label: 'Reviews', icon: '★' },
-            { id: 'setup', label: 'Setup', icon: '⚙' },
         ],
         loginForm: { username: '', password: '' },
         loginError: '',
@@ -131,12 +134,20 @@ document.addEventListener('alpine:init', () => {
             window.addEventListener('scroll', () => {
                 const nb = document.getElementById('navbar');
                 if (!nb) return;
+                const adminPage = window.location.pathname.includes('admin.html');
                 if (window.scrollY > 50) {
-                    nb.style.background = 'rgba(255,255,255,0.95)';
-                    nb.style.borderBottom = '1px solid #e5e7eb';
+                    nb.style.background = adminPage ? '#1a1d1d' : 'rgba(255,255,255,0.95)';
+                    nb.style.borderBottom = adminPage ? '1px solid #333' : '1px solid #e5e7eb';
                 } else {
-                    nb.style.background = 'rgba(255,255,255,0.85)';
-                    nb.style.borderBottom = '1px solid #e5e7eb';
+                    nb.style.background = adminPage ? '#1a1d1d' : 'rgba(255,255,255,0.85)';
+                    nb.style.borderBottom = adminPage ? '1px solid #333' : '1px solid #e5e7eb';
+                }
+            });
+
+            // Watch for admin tab changes to re-init charts
+            this.$watch('adminTab', (val) => {
+                if (val === 'dashboard' && this.adminLoggedIn) {
+                    this.$nextTick(() => this.initCharts());
                 }
             });
         },
@@ -182,14 +193,29 @@ document.addEventListener('alpine:init', () => {
         async loadReviews() {
             this.reviewsLoading = true;
             if (this.useSupabase && this.sb) {
-                const { data, error } = await this.sb
+                // Try fetching with response_text first
+                let { data, error } = await this.sb
                     .from('reviews')
-                    .select('*, products(name)')
+                    .select('*, products(name), response_text')
                     .order('created_at', { ascending: false });
+
+                // Fallback if response_text column doesn't exist yet
+                if (error && error.message.includes('response_text')) {
+                    console.warn('[WTF] response_text column missing, falling back to basic select');
+                    const fallback = await this.sb
+                        .from('reviews')
+                        .select('*, products(name)')
+                        .order('created_at', { ascending: false });
+                    data = fallback.data;
+                    error = fallback.error;
+                }
+
                 if (!error && data) {
                     this.allReviews = data.map(r => ({ ...r, product_name: r.products?.name }));
                 } else {
-                    this.showToast('Failed to load reviews');
+                    const msg = error ? error.message : 'Unknown error';
+                    this.showToast('Failed to load reviews: ' + msg);
+                    console.error('[WTF] loadReviews error:', error);
                 }
             }
             this.reviewsLoading = false;
@@ -318,10 +344,128 @@ document.addEventListener('alpine:init', () => {
             this.loginError = '';
             if (this.loginForm.username === ADMIN_USER && this.loginForm.password === ADMIN_PASS) {
                 this.adminLoggedIn = true;
+                this.adminSidebarOpen = false;
                 this.adminTab = 'dashboard';
                 this.loginForm = { username: '', password: '' };
+                this.$nextTick(() => this.initCharts());
             } else {
                 this.loginError = 'Invalid credentials. Please try again.';
+            }
+        },
+
+        // ── Submit Review Response
+        async submitResponse(reviewId, text) {
+            if (!this.useSupabase || !this.sb) {
+                this.showToast('Supabase not connected');
+                return;
+            }
+            const { error } = await this.sb
+                .from('reviews')
+                .update({ response_text: text })
+                .eq('id', reviewId);
+
+            if (!error) {
+                const idx = this.allReviews.findIndex(r => r.id === reviewId);
+                if (idx !== -1) {
+                    this.allReviews[idx].response_text = text;
+                }
+                this.showToast('✓ Response saved successfully!');
+            } else {
+                let msg = error.message;
+                if (msg.includes('column "response_text" of relation "reviews" does not exist')) {
+                    msg = 'Database error: response_text column is missing. Please run the SQL command in the Setup tab.';
+                }
+                this.showToast('Failed: ' + msg);
+                console.error('[WTF] submitResponse error:', error);
+            }
+        },
+
+        // ── Dashboard Charts
+        initCharts() {
+            if (this.adminTab !== 'dashboard' || !this.adminLoggedIn) return;
+            if (!window.Chart) {
+                console.warn('Chart.js not loaded yet');
+                return;
+            }
+
+            // Category Distribution Pie Chart
+            const catCtx = document.getElementById('categoryChart');
+            if (catCtx) {
+                const categories = [...new Set(this.products.map(p => p.category || 'Uncategorized'))];
+                const chartData = categories.map(c => this.products.filter(p => (p.category || 'Uncategorized') === c).length);
+
+                new Chart(catCtx, {
+                    type: 'pie', // Changed to Pie as per request
+                    data: {
+                        labels: categories,
+                        datasets: [{
+                            data: chartData,
+                            backgroundColor: ['#14532d', '#4d7c0f', '#065f46', '#064e3b', '#b45309', '#eab308'],
+                            borderWidth: 1,
+                            borderColor: '#fff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom', labels: { color: '#4b5563', font: { size: 10, family: 'Barlow Condensed' }, padding: 15 } }
+                        }
+                    }
+                });
+            }
+
+            // Gantt Chart (Project Roadmap) using horizontal floating bars
+            const ganttCtx = document.getElementById('ganttChart');
+            if (ganttCtx) {
+                new Chart(ganttCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Planning', 'Design', 'Development', 'Testing', 'Launch'],
+                        datasets: [{
+                            label: 'Progress',
+                            // Floating bars: [start, end]
+                            data: [
+                                [1, 5],   // Planning
+                                [4, 12],  // Design
+                                [10, 25], // Development
+                                [22, 28], // Testing
+                                [28, 30]  // Launch
+                            ],
+                            backgroundColor: '#4d7c0f',
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                min: 0,
+                                max: 31,
+                                grid: { color: 'rgba(0,0,0,0.05)' },
+                                ticks: {
+                                    color: '#888',
+                                    callback: (val) => 'Day ' + val
+                                }
+                            },
+                            y: {
+                                grid: { display: false },
+                                ticks: { color: '#111827', font: { weight: 'bold' } }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => `Days ${ctx.raw[0]} - ${ctx.raw[1]}`
+                                }
+                            }
+                        }
+                    }
+                });
             }
         },
 

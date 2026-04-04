@@ -29,6 +29,8 @@
 
     <!-- Custom Styles -->
     <link rel="stylesheet" href="style.css" />
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- App Config (gitignored) -->
     <script src="config.js"></script>
     <!-- App JS -->
@@ -40,22 +42,29 @@
     <!-- NAVBAR -->
     <nav class="navbar px-6 md:px-12 py-4" id="navbar">
         <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <!-- Logo -->
             <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
                 <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
-                    <span class="font-display text-white text-sm tracking-widest">WTF</span>
+                    <span class="font-display text-black text-sm tracking-widest">WTF</span>
                 </div>
                 <div>
-                    <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
-                    <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est.
-                        2026 · Vavuniya</div>
+                    <div class="font-display text-wtf-cream text-lg md:text-xl tracking-widest leading-none">WAY TO
+                        FASHION</div>
+                    <div
+                        class="text-[0.5rem] md:text-[0.55rem] font-heading font-600 tracking-[0.2em] md:tracking-[0.3em] text-wtf-muted uppercase">
+                        Est. 2026 · Vavuniya</div>
                 </div>
             </div>
+
+            <!-- Desktop Nav -->
             <div class="hidden md:flex items-center gap-8">
                 <template x-for="item in navItems" :key="item.id">
                     <a @click="navigate(item.id)" class="nav-link cursor-pointer"
                         :class="{ active: currentPage === item.id }" x-text="item.label"></a>
                 </template>
             </div>
+
+            <!-- Cart / Admin indicator -->
             <div class="hidden md:flex items-center gap-4">
                 <a @click="navigate('admin')"
                     class="text-wtf-muted hover:text-wtf-lime transition-colors flex items-center gap-1.5 text-xs font-heading tracking-widest uppercase cursor-pointer"
@@ -68,16 +77,20 @@
                 </a>
                 <a @click="navigate('contact')" class="btn-primary text-xs cursor-pointer"><span>Contact Us</span></a>
             </div>
-        </div>
-        <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
-            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
-                :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
-            <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
-            <span class="w-6 h-0.5 bg-wtf-cream transition-all"
-                :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
-        </button>
+
+            <!-- Hamburger -->
+            <button @click="mobileOpen = !mobileOpen"
+                class="md:hidden flex flex-col gap-1.5 p-2 bg-wtf-green/5 rounded-md border border-wtf-green/10"
+                aria-label="Toggle Menu">
+                <span class="w-6 h-0.5 bg-black transition-all"
+                    :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+                <span class="w-6 h-0.5 bg-black transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+                <span class="w-6 h-0.5 bg-black transition-all"
+                    :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
+            </button>
         </div>
     </nav>
+
 
     <div class="mobile-menu" :class="{ open: mobileOpen }">
         <div class="flex flex-col h-full justify-center items-center gap-10">
@@ -116,7 +129,7 @@
                     </div>
                     <div x-show="loginError" class="text-red-500 text-sm font-body" x-text="loginError"></div>
                     <button type="submit" class="btn-primary w-full"><span>Access Admin Panel →</span></button>
-                    <p class="text-xs text-wtf-muted text-center font-body">Default: admin / wtf2026</p>
+                    <p class="text-xs text-wtf-muted text-center font-body">Contect Admin Team.</p>
                 </form>
             </div>
         </div>
@@ -127,10 +140,7 @@
             <div
                 class="admin-sidebar w-64 flex-shrink-0 p-6 hidden md:flex flex-col bg-wtf-dark border-r border-wtf-border  shadow-xl relative z-10">
                 <div class="mb-10 text-center">
-                    <div
-                        class="w-14 h-14 bg-wtf-green mx-auto flex items-center justify-center mb-3 rounded-full shadow-lg">
-                        <span class="font-display text-xl text-white">WTF</span>
-                    </div>
+
                     <div class="font-display text-xl tracking-widest text-wtf-cream">ADMIN PANEL</div>
                     <div class="text-[0.65rem] font-heading tracking-widest text-wtf-muted uppercase mt-1">Management
                         System</div>
@@ -146,7 +156,7 @@
                     </template>
                 </nav>
                 <button @click="adminLoggedIn = false"
-                    class="flex items-center justify-center gap-2 w-full py-4 bg-white/5 hover:bg-red-500/10 text-xs text-red-400 font-heading tracking-widest uppercase transition-all mt-auto rounded-lg font-bold border border-transparent hover:border-red-500/30">
+                    class="flex items-center justify-center gap-2 w-full py-2 bg-white/5 hover:bg-red-500/10 text-xs text-red-400 font-heading tracking-widest uppercase transition-all mt-auto rounded-lg font-bold border border-transparent hover:border-red-500/30">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -169,7 +179,8 @@
             <div class="flex-1 p-6 md:p-10 overflow-auto pb-20 md:pb-6 bg-wtf-dark">
                 <!-- Dashboard -->
                 <div x-show="adminTab === 'dashboard'">
-                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-8">DASHBOARD</h2>
+                    <h2 class="font-display text-4xl tracking-widest text-wtf-cream mb-8 uppercase">Website Performance
+                    </h2>
                     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                         <template x-for="(stat, i) in [
             { label: 'Products', value: products.length, color: 'text-wtf-lime' },
@@ -184,19 +195,20 @@
                             </div>
                         </template>
                     </div>
-                    <div class="admin-card p-6 rounded-lg bg-white border-wtf-border">
-                        <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-4">Supabase
-                            Setup Guide</h3>
-                        <div class="space-y-2 text-sm text-wtf-muted font-body">
-                            <p>1. Create a Supabase project at <span class="text-wtf-lime font-bold">supabase.com</span>
-                            </p>
-                            <p>2. Run the SQL in the Setup tab to create tables</p>
-                            <p>3. Replace <code
-                                    class="text-amber-800 bg-amber-50 px-1 py-0.5 rounded text-xs border border-amber-200">SUPABASE_URL</code>
-                                and <code
-                                    class="text-amber-800 bg-amber-50 px-1 py-0.5 rounded text-xs border border-amber-200">SUPABASE_ANON_KEY</code>
-                                in <code class="font-mono font-bold text-gray-700">app.js</code></p>
-                            <p>4. Products and reviews will sync automatically</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="admin-card p-6 rounded-lg bg-white border-wtf-border">
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-4">
+                                Category Distribution</h3>
+                            <div class="h-64 flex items-center justify-center">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="admin-card p-6 rounded-lg bg-white border-wtf-border">
+                            <h3 class="font-heading font-600 text-wtf-cream tracking-widest uppercase text-sm mb-4">
+                                Project Roadmap (Gantt)</h3>
+                            <div class="h-64">
+                                <canvas id="ganttChart"></canvas>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -401,6 +413,39 @@
                                     <p class="text-wtf-muted text-sm font-body" x-text="review.review_text"></p>
                                     <div class="text-xs text-wtf-muted mt-2 font-heading tracking-widest uppercase"
                                         x-text="'Product: ' + (review.product_name || 'N/A')"></div>
+
+                                    <!-- Review Response -->
+                                    <div class="review-response"
+                                        x-data="{ editing: false, tempResponse: review.response_text || '' }">
+                                        <div x-show="!editing">
+                                            <template x-if="review.response_text">
+                                                <div class="bg-gray-50 p-3 rounded border-l-4 border-wtf-green mb-3">
+                                                    <p
+                                                        class="text-[0.65rem] font-heading tracking-widest uppercase text-wtf-green font-bold mb-1">
+                                                        Official Response</p>
+                                                    <p class="text-xs italic text-wtf-muted"
+                                                        x-text="review.response_text"></p>
+                                                </div>
+                                            </template>
+                                            <button @click="editing = true"
+                                                class="text-wtf-green hover:underline text-[0.65rem] font-heading tracking-widest uppercase font-bold">
+                                                <span
+                                                    x-text="review.response_text ? 'Edit Response' : 'Respond to Review'"></span>
+                                            </button>
+                                        </div>
+                                        <div x-show="editing" class="space-y-2">
+                                            <textarea x-model="tempResponse" class="form-input text-xs" rows="2"
+                                                placeholder="Write your response..."></textarea>
+                                            <div class="flex gap-2">
+                                                <button
+                                                    @click="submitResponse(review.id, tempResponse); editing = false"
+                                                    class="btn-primary py-1.5 px-4 text-[0.65rem] normal-case">Save
+                                                    Response</button>
+                                                <button @click="editing = false"
+                                                    class="btn-outline py-1.5 px-4 text-[0.65rem] normal-case">Cancel</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button @click="deleteReview(review.id)"
                                     class="text-red-500 hover:text-red-700 font-bold text-xs font-heading tracking-widest uppercase transition-colors flex-shrink-0">Delete</button>

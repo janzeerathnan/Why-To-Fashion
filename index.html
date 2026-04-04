@@ -43,12 +43,13 @@
       <!-- Logo -->
       <div class="flex items-center gap-3 cursor-pointer" @click="navigate('home')">
         <div class="w-10 h-10 bg-wtf-green flex items-center justify-center">
-          <span class="font-display text-white text-sm tracking-widest">WTF</span>
+          <span class="font-display text-black text-sm tracking-widest">WTF</span>
         </div>
         <div>
-          <div class="font-display text-wtf-cream text-xl tracking-widest leading-none">WHY TO FASHION</div>
-          <div class="text-[0.55rem] font-heading font-600 tracking-[0.3em] text-wtf-muted uppercase">Est. 2026 ·
-            Vavuniya</div>
+          <div class="font-display text-wtf-cream text-lg md:text-xl tracking-widest leading-none">WAY TO FASHION</div>
+          <div
+            class="text-[0.5rem] md:text-[0.55rem] font-heading font-600 tracking-[0.2em] md:tracking-[0.3em] text-wtf-muted uppercase">
+            Est. 2026 · Vavuniya</div>
         </div>
       </div>
 
@@ -75,10 +76,12 @@
       </div>
 
       <!-- Hamburger -->
-      <button @click="mobileOpen = !mobileOpen" class="md:hidden flex flex-col gap-1.5 p-1">
-        <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
-        <span class="w-6 h-0.5 bg-wtf-cream transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
-        <span class="w-6 h-0.5 bg-wtf-cream transition-all"
+      <button @click="mobileOpen = !mobileOpen"
+        class="md:hidden flex flex-col gap-1.5 p-2 bg-wtf-green/5 rounded-md border border-wtf-green/10"
+        aria-label="Toggle Menu">
+        <span class="w-6 h-0.5 bg-black transition-all" :class="mobileOpen ? 'rotate-45 translate-y-2' : ''"></span>
+        <span class="w-6 h-0.5 bg-black transition-all" :class="mobileOpen ? 'opacity-0' : ''"></span>
+        <span class="w-6 h-0.5 bg-black transition-all"
           :class="mobileOpen ? '-rotate-45 -translate-y-2' : ''"></span>
       </button>
     </div>
@@ -283,7 +286,7 @@
           </div>
           <div data-aos="fade-left" data-aos-delay="150">
             <div class="section-tag mb-4">About The Brand</div>
-            <h2 class="font-display text-5xl md:text-6xl tracking-widest text-wtf-cream mb-6">WHY TO<br>FASHION?</h2>
+            <h2 class="font-display text-5xl md:text-6xl tracking-widest text-wtf-cream mb-6">WAY TO<br>FASHION?</h2>
             <p class="font-body text-wtf-muted leading-relaxed mb-6">
               Born in Vavuniya, WTF isn't just a clothing brand — it's a statement. We believe fashion is how you tell
               your story without speaking. Every piece we craft challenges the ordinary and celebrates individuality.
@@ -353,10 +356,10 @@
         <div class="md:col-span-1">
           <div class="flex items-center gap-3 mb-6 cursor-pointer" @click="navigate('home')">
             <div class="w-12 h-12 bg-wtf-green flex items-center justify-center">
-              <span class="font-display text-sm text-white tracking-widest">WTF</span>
+              <span class="font-display text-sm tracking-widest">WTF</span>
             </div>
             <div>
-              <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WHY TO FASHION</div>
+              <div class="font-display text-lg text-wtf-cream tracking-widest leading-none">WAY TO FASHION</div>
             </div>
           </div>
           <p class="font-body text-wtf-muted text-sm leading-relaxed mb-4">Bold menswear for the modern man. Born in
@@ -410,15 +413,8 @@
 
       <!-- Bottom Bar -->
       <div class="border-t border-wtf-border pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-        <p class="text-xs text-wtf-muted font-body">© 2026 Why To Fashion (WTF). All rights reserved.</p>
-        <div class="flex gap-6">
-          <a href="#"
-            class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Privacy</a>
-          <a href="#"
-            class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase">Terms</a>
-          <a @click="navigate('admin')"
-            class="text-xs text-wtf-muted hover:text-wtf-lime transition-colors font-heading tracking-widest uppercase cursor-pointer">Admin</a>
-        </div>
+        <p class="text-xs text-wtf-muted font-body">© 2026 Way To Fashion (WTF). All rights reserved.</p>
+        
       </div>
     </div>
   </footer>
